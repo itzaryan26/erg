@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= job.title %> - Job Portal</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <h1>Job Portal</h1>
+            <button class="menu-toggle" onclick="toggleMobileMenu()">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/jobs">Browse Jobs</a>
+                <% if (user) { %>
+                    <a href="/employer/post-job">Post a Job</a>
+                <% } %>
+                <a href="/about">About Us</a>
+                <a href="/contact">Contact</a>
+                <!-- Demo link for 404 error -->
+                <a href="/this-page-does-not-exist" style="color: #ff6b6b;">Demo 404 Error</a>
+            </div>
+            <div class="mobile-menu">
+                <a href="/">Home</a>
+                <a href="/jobs">Browse Jobs</a>
+                <% if (user) { %>
+                    <a href="/employer/post-job">Post a Job</a>
+                <% } %>
+                <a href="/about">About Us</a>
+                <a href="/contact">Contact</a>
+                <a href="/this-page-does-not-exist" style="color: #ff6b6b;">Demo 404 Error</a>
+            </div>
+            <div class="user-section">
+                <% if (user) { %>
+                    <div class="user-profile" onclick="toggleUserDropdown()">
+                        <% if (user.avatar && user.avatar !== '/images/default-avatar.png') { %>
+                            <img src="<%= user.avatar %>" alt="<%= user.name %>">
+                        <% } else { %>
+                            <div class="user-icon">
+                                <i class="fas fa-user"></i>
+                            </div>
+                        <% } %>
+                        <span><%= user.name %></span>
+                        <div class="user-dropdown">
+                            <a href="/auth/logout">Logout</a>
+                        </div>
+                    </div>
+                <% } else { %>
+                    <a href="/auth/login">Sign In</a>
+                    <a href="/auth/register">Sign Up</a>
+                <% } %>
+                <button class="theme-toggle" onclick="toggleTheme()">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="job-details">
+            <h2><%= job.title %></h2>
+            <div class="job-info">
+                <p class="company"><strong>Company:</strong> <%= job.company %></p>
+                <p class="location"><strong>Location:</strong> <%= job.location %></p>
+                <p class="posted"><strong>Posted:</strong> <%= job.createdAt.toLocaleDateString() %></p>
+            </div>
+
+            <div class="job-description">
+                <h3>Job Description</h3>
+                <p><%= job.description %></p>
+            </div>
+
+            <div class="job-requirements">
+                <h3>Requirements</h3>
+                <p><%= job.requirements %></p>
+            </div>
+
+            <div class="application-form">
+                <h3>Apply for this Position</h3>
+                <form action="/jobs/<%= job.id %>/apply" method="POST" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="resume">Resume (PDF)</label>
+                        <input type="file" id="resume" name="resume" accept=".pdf" required>
+                    </div>
+
+                    <button type="submit">Submit Application</button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>About Us</h3>
+                <p>Connecting talented professionals with amazing opportunities since 2023.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="/jobs">Find Jobs</a></li>
+                    <li><a href="/employer/post-job">Post a Job</a></li>
+                    <li><a href="/about">About Us</a></li>
+                    <li><a href="/contact">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Contact Us</h3>
+                <ul>
+                    <li><i class="fas fa-envelope"></i> support@jobportal.com</li>
+                    <li><i class="fas fa-phone"></i> +1 (555) 123-4567</li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2023 Job Portal. All rights reserved.</p>
+        </div>
+    </footer>
+    <script>
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            const themeIcon = document.querySelector('.theme-toggle i');
+            themeIcon.className = newTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+        }
+
+        function toggleUserDropdown() {
+            const dropdown = document.querySelector('.user-dropdown');
+            dropdown.classList.toggle('active');
+        }
+
+        function toggleMobileMenu() {
+            const mobileMenu = document.querySelector('.mobile-menu');
+            mobileMenu.classList.toggle('active');
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.user-profile')) {
+                const dropdown = document.querySelector('.user-dropdown');
+                if (dropdown) dropdown.classList.remove('active');
+            }
+            if (!e.target.closest('.menu-toggle') && !e.target.closest('.mobile-menu')) {
+                const mobileMenu = document.querySelector('.mobile-menu');
+                if (mobileMenu) mobileMenu.classList.remove('active');
+            }
+        });
+
+        // Set initial theme
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        const themeIcon = document.querySelector('.theme-toggle i');
+        themeIcon.className = savedTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+    </script>
+</body>
+</html>
